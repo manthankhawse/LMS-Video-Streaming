@@ -1,0 +1,64 @@
+# Global Ignore (for both client and server)
+.DS_Store
+node_modules/
+dist/
+build/
+.env
+*.log
+yarn.lock
+package-lock.json
+
+# ============================
+# Ignore files for Spring Boot (server)
+# ============================
+server/target/
+server/.mvn/
+server/.idea/
+server/.classpath
+server/.project
+server/.settings/
+server/.gradle/
+server/build/
+server/mvnw
+server/mvnw.cmd
+server/*.iml
+
+# Spring Boot application properties (if needed)
+server/src/main/resources/application.properties
+server/src/main/resources/application.yml
+server/src/main/resources/application-dev.properties
+server/src/main/resources/application-prod.properties
+
+# Log files and temp files
+server/logs/
+server/*.log
+server/.tmp/
+server/db.sqlite  # If using SQLite for local development
+
+# ============================
+# Ignore files for React (client)
+# ============================
+client/node_modules/
+client/.next/
+client/.out/
+client/build/
+client/.cache/
+client/.env.local
+client/.env.development
+client/.env.production
+client/npm-debug.log*
+client/yarn-debug.log*
+client/yarn-error.log*
+client/.eslintcache
+client/.parcel-cache/
+client/public/static/
+client/public/build/
+
+# IDE & Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# MacOS system files
+Thumbs.db
