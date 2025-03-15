@@ -1,7 +1,9 @@
 package com.example.server.controller;
 
+import com.example.server.entities.Course;
 import com.example.server.entities.Section;
 import com.example.server.entities.User;
+import com.example.server.repository.CourseRepository;
 import com.example.server.repository.SectionRepository;
 import com.example.server.service.SectionService;
 import com.example.server.service.CourseService;
@@ -13,29 +15,39 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/v1/sections")
 public class SectionController {
 
     private final SectionService sectionService;
-    private final CourseService courseService;
+    private final CourseRepository courseRepository;
     private final SectionRepository sectionRepository;
     private final UserRepository userRepository;
 
-    public SectionController(SectionService sectionService, CourseService courseService, UserRepository userRepository, SectionRepository sectionRepository) {
+    public SectionController(SectionService sectionService, CourseRepository courseRepository, UserRepository userRepository, SectionRepository sectionRepository) {
         this.sectionService = sectionService;
-        this.courseService = courseService;
+        this.courseRepository = courseRepository;
         this.userRepository = userRepository;
         this.sectionRepository = sectionRepository;
     }
 
     @PostMapping("/create")
-    public ResponseEntity<?> createSection(@RequestBody Section section) {
+    public ResponseEntity<?> createSection(@RequestBody Section section, @RequestParam(value = "course_id", required = true) Long courseId) {
         User instructor = getAuthenticatedUser();
-        if (!Objects.equals(instructor.getId(), section.getCourse().getInstructor().getId())) {
+        Optional<Course> optionalCourse = courseRepository.findById(courseId);
+
+        // Check if the course exists
+        if (!optionalCourse.isPresent()) {
+            return ResponseEntity.status(404).body("Course not found.");
+        }
+
+        Course course = optionalCourse.get();
+        if (!Objects.equals(instructor.getId(), course.getInstructor().getId())) {
             return ResponseEntity.status(403).body("You are not the instructor of this course.");
         }
+        section.setCourse(course);
         Section createdSection = sectionService.createSection(section);
         return ResponseEntity.ok(createdSection);
     }

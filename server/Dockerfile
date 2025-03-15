@@ -2,6 +2,8 @@
 FROM openjdk:17-jdk-slim
 
 # Copy the actual JAR file correctly
+RUN apt-get update && apt-get install -y ffmpeg
+
 COPY target/*.jar app.jar
 
 # Expose the application port

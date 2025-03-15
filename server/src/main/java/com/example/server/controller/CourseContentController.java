@@ -5,6 +5,7 @@ import com.example.server.entities.Section;
 import com.example.server.entities.User;
 import com.example.server.service.CourseContentService;
 import com.example.server.service.SectionService;
+import com.example.server.service.VideoService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -18,10 +19,12 @@ import java.util.Objects;
 public class CourseContentController {
     private final CourseContentService courseContentService;
     private final SectionService sectionService;
+    private final VideoService videoService;
 
-    public CourseContentController(CourseContentService courseContentService, SectionService sectionService) {
+    public CourseContentController(CourseContentService courseContentService, SectionService sectionService, VideoService videoService) {
         this.courseContentService = courseContentService;
         this.sectionService = sectionService;
+        this.videoService = videoService;
     }
 
     @GetMapping("/{sectionId}")
@@ -31,15 +34,17 @@ public class CourseContentController {
 
     @PostMapping("/create")
     public ResponseEntity<?> createCourseContent(
-            @RequestParam("sectionId") Long sectionId,
+//            @RequestParam("sectionId") Long sectionId,
             @RequestParam("title") String title,
             @RequestParam(value = "video", required = false) MultipartFile video,
             @RequestParam(value = "pdf", required = false) MultipartFile pdf,
             Authentication authentication
     ) {
+        System.out.println("Controller called");
         User instructor = (User) authentication.getPrincipal();
-        Section section = sectionService.getSectionById(sectionId);
 
+        Section section = sectionService.getSectionById(1L);
+        System.out.println(section);
         if (!Objects.equals(instructor.getId(), section.getCourse().getInstructor().getId())) {
             return ResponseEntity.status(403).body("You are not authorized to add content to this section.");
         }
@@ -50,7 +55,8 @@ public class CourseContentController {
 
         // Handle file uploads
         if (video != null) {
-            courseContent.setVideoUrl(uploadFile(video));
+            System.out.println("processing video");
+            courseContent.setVideoUrl(videoService.processVideo(video));
         }
         if (pdf != null) {
             courseContent.setPdfUrl(uploadFile(pdf));

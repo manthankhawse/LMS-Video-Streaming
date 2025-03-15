@@ -26,6 +26,7 @@ public class CourseContentService {
 
         // Set position dynamically (append at the end)
         courseContent.setPosition(existingContents.size() + 1);
+
         return courseContentRepository.save(courseContent);
     }
 
