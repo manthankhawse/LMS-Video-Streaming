@@ -1,76 +1,83 @@
-import { Button } from "@/components/ui/button"
-import React from "react"
+import { Button } from "@/components/ui/button";
+import React, { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
 
 export default function BuyCourse() {
+  const {courseId} = useParams();
+  const [course, setCourse] = useState(null);
+
+  useEffect(() => {
+    async function fetchCourse() {
+      try {
+        const token = localStorage.getItem("token");
+        const response = await fetch(`http://localhost:8080/api/v1/courses/${courseId}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        const data = await response.json();
+        setCourse(data);
+      } catch (error) {
+        console.error("Error fetching course:", error);
+      }
+    }
+    fetchCourse();
+  }, [courseId]);
+
+  if (!course) {
+    return <div className="text-center text-lg text-gray-700">Loading...</div>;
+  }
+
   return (
     <React.Fragment>
-      <div className="bg-gradient-to-r from-slate-50 to-gray-100 py-8 lg:py-16 w-4/5 mx-auto rounded-xl shadow-lg">
-        <div className="container px-4 md:px-6">
-          <div className="grid items-center gap-8 lg:grid-cols-2 lg:gap-12">
-            <div className="space-y-6 p-6 bg-white rounded-lg shadow-md border border-slate-200 transition-all duration-300 hover:shadow-xl">
-              <h1 className="text-3xl font-bold tracking-tighter sm:text-5xl text-slate-800">
-                Mastering Tailwind CSS
-              </h1>
-              <p className="max-w-[600px] text-slate-600 md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
-                Learn how to build modern, responsive web applications using utility-first CSS with Tailwind CSS. This
-                course covers the fundamentals of Tailwind CSS, customizing your design system, and integrating Tailwind
-                CSS with popular frontend frameworks.
-              </p>
-              <div className="flex items-center space-x-4">
-                <div className="text-3xl font-bold text-slate-700">$99</div>
-                <Button 
-                  className="bg-slate-700 hover:bg-slate-800 text-white shadow-md transition-all duration-300 hover:shadow-lg transform hover:-translate-y-1" 
-                  size="lg"
-                >
-                  Enroll in Course
-                </Button>
+      <div className="py-12 lg:py-20 w-11/12 lg:w-4/5 mx-auto rounded-2xl shadow-xl">
+        <div className="container px-6 md:px-8">
+          {/* Course header section */}
+          <div className="flex flex-col gap-10">
+            {/* Title, description, and image in one section */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
+              <div className="space-y-6 p-8 bg-white rounded-xl shadow-md border border-cyan-100 transition-all duration-300 hover:shadow-xl">
+                <h1 className="text-4xl font-bold tracking-tight sm:text-5xl text-teal-800">
+                  {course.title}
+                </h1>
+                <p className="max-w-full text-teal-600 text-lg/relaxed">
+                  {course.description}
+                </p>
+                <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6 pt-2">
+                  <div className="text-4xl font-bold text-teal-700">${course.price}</div>
+                  <Button
+                    className="bg-teal-600 hover:bg-teal-700 text-white shadow-md transition-all duration-300 hover:shadow-lg transform hover:-translate-y-1 rounded-lg px-6 py-3 font-medium"
+                    size="lg"
+                  >
+                    Enroll Now
+                  </Button>
+                </div>
+              </div>
+              <div className="flex justify-center">
+                <img
+                  src={`http://localhost:8080${course.imageUrl}` || "/placeholder.svg"}
+                  width="500"
+                  height="300"
+                  alt="Course Image"
+                  className="aspect-video overflow-hidden rounded-2xl object-cover object-center shadow-xl border-2 border-cyan-100 transition-all duration-300 hover:shadow-2xl hover:scale-102"
+                />
               </div>
             </div>
-            <div className="flex justify-center">
-              <img
-                src="/placeholder.svg"
-                width="400"
-                height="225"
-                alt="Course Image"
-                className="aspect-video overflow-hidden rounded-xl object-cover object-center shadow-xl border-2 border-slate-200 transition-all duration-300 hover:shadow-2xl hover:scale-105"
-              />
+            
+            {/* Curriculum section below */}
+            <div className="bg-white rounded-2xl shadow-xl border border-cyan-50 p-8">
+              <h2 className="text-3xl md:text-4xl font-bold text-teal-800 pb-6 border-b border-teal-200">Course Curriculum</h2>
+              <ul className="grid gap-6 my-8">
+                {course.sections.map((section) => (
+                  <li key={section.id} className="border border-cyan-100 max-w-full px-6 py-6 rounded-xl shadow-md hover:shadow-lg transition-all duration-300 bg-white hover:bg-cyan-50 cursor-pointer">
+                    <div className="font-semibold text-xl text-teal-800">{section.title}</div>
+                  </li>
+                ))}
+              </ul>
             </div>
           </div>
         </div>
       </div>
-      <section className="w-4/5 mx-auto py-12 md:py-24 lg:py-32 bg-white rounded-xl shadow-lg mt-8 border border-slate-100">
-        <div className="container px-4 md:px-6">
-          <div className="prose max-w-none">
-            <h2 className="text-4xl font-semibold text-slate-700 pb-4 border-b-2 border-slate-200">Course Curriculum</h2>
-            <ul className="grid gap-4 my-6">
-              <li className="border border-slate-200 max-w-full px-4 py-6 rounded-lg shadow-md hover:shadow-xl transition-all duration-300 bg-white hover:bg-slate-50 cursor-pointer">
-                <div className="font-medium text-lg text-slate-700">Module 1: Introduction to Tailwind CSS</div>
-                <p className="text-slate-600">
-                  Learn the basics of Tailwind CSS and the utility-first workflow.
-                </p>
-              </li>
-              <li className="border border-slate-200 max-w-full px-4 py-6 rounded-lg shadow-md hover:shadow-xl transition-all duration-300 bg-white hover:bg-slate-50 cursor-pointer">
-                <div className="font-medium text-lg text-slate-700">Module 2: Customizing Tailwind CSS</div>
-                <p className="text-slate-600">
-                  Explore how to customize your design system with Tailwind CSS configuration.
-                </p>
-              </li>
-              <li className="border border-slate-200 max-w-full px-4 py-6 rounded-lg shadow-md hover:shadow-xl transition-all duration-300 bg-white hover:bg-slate-50 cursor-pointer">
-                <div className="font-medium text-lg text-slate-700">Module 3: Integrating Tailwind CSS with Frameworks</div>
-                <p className="text-slate-600">
-                  Learn how to integrate Tailwind CSS with popular frontend frameworks like React, Vue.js, and Svelte.
-                </p>
-              </li>
-              <li className="border border-slate-200 max-w-full px-4 py-6 rounded-lg shadow-md hover:shadow-xl transition-all duration-300 bg-white hover:bg-slate-50 cursor-pointer">
-                <div className="font-medium text-lg text-slate-700">Module 4: Advanced Styling Techniques</div>
-                <p className="text-slate-600">
-                  Dive into advanced styling techniques and component-based design with Tailwind CSS.
-                </p>
-              </li>
-            </ul>
-          </div>
-        </div>
-      </section>
     </React.Fragment>
-  )
+  );
 }

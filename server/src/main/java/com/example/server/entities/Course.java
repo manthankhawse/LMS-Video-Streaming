@@ -18,6 +18,9 @@ public class Course {
     @Column(nullable = false)
     private Long id;
 
+    @Column(nullable = false)
+    private String imageUrl;
+
     @ManyToOne(cascade = CascadeType.MERGE)
     @JoinColumn(name="instructor_id", nullable = false)
     private User instructor;

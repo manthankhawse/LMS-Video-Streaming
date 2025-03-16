@@ -3,7 +3,9 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { z } from "zod"
-import { useState } from "react"
+import { useContext, useState } from "react"
+import { AuthContext } from "@/context/userContext"
+import { useNavigate } from "react-router-dom"
 
 const loginSchema = z.object({
   username: z.string().min(1, "Username is required"),
@@ -14,6 +16,10 @@ export function LoginForm({
   className,
   ...props
 }: React.ComponentProps<"form">) {
+
+  const {user, setUser, token, setToken} = useContext(AuthContext);
+
+  const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
     username: "",
@@ -52,7 +58,11 @@ export function LoginForm({
 
       const data = await res.json();
       setErrors({});
-      console.log(data);
+      setUser(data.user);
+      setToken(data.token);
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("user", JSON.stringify(data.user));
+      navigate('/');
     } catch (error) {
       console.error("An error occurred during form submission:", error);
     }

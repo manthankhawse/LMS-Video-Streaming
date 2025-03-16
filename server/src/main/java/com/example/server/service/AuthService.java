@@ -34,13 +34,17 @@ public class AuthService {
                 .password(passwordEncoder.encode(request.getPassword()))
                 .role(role)
                 .build();
-        if(userRepository.findByEmail(request.getEmail()).isEmpty()){
+        if (userRepository.findByEmail(request.getEmail()).isEmpty()) {
             userRepository.save(user);
         }
         var jwtToken = jwtService.generateToken(user);
 
-        return AuthenticationResponse.builder().token(jwtToken).build();
+        return AuthenticationResponse.builder()
+                .token(jwtToken)
+                .user(user)
+                .build();
     }
+
 
     public AuthenticationResponse authenticate(AuthenticationRequest request) {
         authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
@@ -48,7 +52,12 @@ public class AuthService {
                 request.getPassword()));
         var user = userRepository.findByUsername(request.getUsername()).orElseThrow();
         var jwtToken = jwtService.generateToken(user);
-        return AuthenticationResponse.builder().token(jwtToken).build();
+
+        return AuthenticationResponse.builder()
+                .token(jwtToken)
+                .user(user)
+                .build();
     }
+
 
 }

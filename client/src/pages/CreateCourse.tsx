@@ -1,5 +1,5 @@
 // InstructorDashboard.tsx
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -9,51 +9,40 @@ import { Textarea } from "@/components/ui/textarea";
 import { Separator } from "@/components/ui/separator";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Loader2, Plus, Edit, Trash2 } from "lucide-react";
-import { AuthContext } from '@/context/userContext';
 
 // Types
 interface Course {
   id: string;
   title: string;
   description: string;
+  category: string;
+  level: string;
   price: number;
-  published: boolean
   imageUrl: string;
 }
 
 const InstructorDashboard: React.FC = () => {
-
-  const {user} = useContext(AuthContext);
   const [courses, setCourses] = useState<Course[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [open, setOpen] = useState<boolean>(false);
   const [formData, setFormData] = useState({
     title: '',
     description: '',
-    price : 0,
-    published: false
+    category: '',
+    level: 'beginner',
+    price: '',
   });
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string>('');
   const [submitting, setSubmitting] = useState<boolean>(false);
 
   useEffect(() => {
-    if (!user) {
-      // If user is null, return early
-      return;
-    }
-
     // Fetch instructor's courses
     const fetchCourses = async () => {
       try {
-        const token = localStorage.getItem("token");
-        const response = await fetch(`http://localhost:8080/api/v1/courses/instructor/${user.id}`,{
-          headers:{
-            Authorization : `Bearer ${token}`
-          }
-        });
+        // Replace with your actual API endpoint
+        const response = await fetch('/api/instructor/courses');
         const data = await response.json();
-        console.log(data);
         setCourses(data);
       } catch (error) {
         console.error('Error fetching courses:', error);
@@ -63,7 +52,7 @@ const InstructorDashboard: React.FC = () => {
     };
 
     fetchCourses();
-  }, [user]); // Only run effect when user changes
+  }, []);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -97,29 +86,25 @@ const InstructorDashboard: React.FC = () => {
 
     setSubmitting(true);
     try {
-
-      const token = localStorage.getItem("token");
       const formDataObj = new FormData();
       
       // Convert course data to JSON and add to FormData
       const courseData = {
         title: formData.title,
         description: formData.description,
-        published: formData.published,
-        price: parseInt(formData.price),
+        category: formData.category,
+        level: formData.level,
+        price: parseFloat(formData.price),
       };
       
       formDataObj.append('course', JSON.stringify(courseData));
       formDataObj.append('image', selectedImage);
-      console.log(formDataObj);
+
       // Call your API endpoint
-      const response = await fetch('http://localhost:8080/api/v1/courses/create-course', {
+      const response = await fetch('/create-course', {
         method: 'POST',
         body: formDataObj,
-        headers:{
-          Authorization: `Bearer ${token}`
-        }
-      },);
+      });
 
       if (response.ok) {
         const newCourse = await response.json();
@@ -142,8 +127,9 @@ const InstructorDashboard: React.FC = () => {
     setFormData({
       title: '',
       description: '',
-      price: 0,
-      published: false
+      category: '',
+      level: 'beginner',
+      price: '',
     });
     setSelectedImage(null);
     setImagePreview('');
@@ -194,6 +180,37 @@ const InstructorDashboard: React.FC = () => {
                     rows={3}
                     required
                   />
+                </div>
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="category" className="text-right">
+                    Category
+                  </Label>
+                  <Input
+                    id="category"
+                    name="category"
+                    value={formData.category}
+                    onChange={handleInputChange}
+                    className="col-span-3"
+                    required
+                  />
+                </div>
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="level" className="text-right">
+                    Level
+                  </Label>
+                  <Select
+                    value={formData.level}
+                    onValueChange={(value) => handleSelectChange('level', value)}
+                  >
+                    <SelectTrigger className="col-span-3">
+                      <SelectValue placeholder="Select level" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="beginner">Beginner</SelectItem>
+                      <SelectItem value="intermediate">Intermediate</SelectItem>
+                      <SelectItem value="advanced">Advanced</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
                 <div className="grid grid-cols-4 items-center gap-4">
                   <Label htmlFor="price" className="text-right">
@@ -281,13 +298,14 @@ const InstructorDashboard: React.FC = () => {
             <Card key={course.id} className="overflow-hidden border-cyan-200">
               <div className="aspect-video w-full overflow-hidden">
                 <img
-                  src={`http://localhost:8080${course.imageUrl}`}
+                  src={course.imageUrl}
                   alt={course.title}
                   className="w-full h-full object-cover"
                 />
               </div>
               <CardHeader>
                 <CardTitle className="text-cyan-800">{course.title}</CardTitle>
+                <CardDescription>{course.category} • {course.level.charAt(0).toUpperCase() + course.level.slice(1)}</CardDescription>
               </CardHeader>
               <CardContent>
                 <p className="text-gray-600 line-clamp-2">{course.description}</p>
