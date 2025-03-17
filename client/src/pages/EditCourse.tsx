@@ -125,7 +125,16 @@ const EditCoursePage = () => {
         <h1 className='text-4xl p-8 text-semibold'>Edit Course</h1>
       </div>
       <div className="w-full mx-auto bg-white shadow-lg overflow-y-auto flex-shrink-0 border-r border-gray-200">
+      <div className="flex space-x-4 border-b pb-2">
+            <button 
+              className={`px-4 py-2 text-sm font-medium border-b-2 border-teal-500`}>Content</button>
+            <button 
+              className={`px-4 py-2 text-sm font-medium`}>Post</button>
+            <button 
+              className={`px-4 py-2 text-sm font-medium`}>Assignment</button>
+          </div>
         <div className="flex gap-5 items-center p-4 border-b border-gray-200 bg-gradient-to-r from-teal-500 to-cyan-500">
+          
           <h1 className="text-lg font-bold text-white">{course.title}</h1>
           <Dialog open={isAddingSection} onOpenChange={setIsAddingSection}>
             <DialogTrigger asChild>
